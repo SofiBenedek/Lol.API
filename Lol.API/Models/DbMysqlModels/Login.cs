@@ -12,4 +12,9 @@ public partial class Login
     public string Username { get; set; }
 
     public int Password { get; set; }
+
+    public static class Authenticator
+    {
+        public static bool loggedin = false;
+    }
 }

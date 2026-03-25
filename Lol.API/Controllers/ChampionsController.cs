@@ -1,8 +1,10 @@
-﻿using Lol.API.Models.DbMysqlModels;
+﻿using Lol.API.Controllers;
+using Lol.API.Models.DbMysqlModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.ComponentModel;
+using static Lol.API.Models.DbMysqlModels.Login;
 
 namespace Lol.API.Controllers
 {
@@ -17,29 +19,55 @@ namespace Lol.API.Controllers
         {
             var champs = await _context.Orders.Select(x => x).ToListAsync();
 
-            if (champs == null)
+            if (champs.Count == 0)
             {
-                return NotFound("Nincs adat");
+                return NotFound("No Data found");
             }
             return Ok(new { champs = champs });
         }
+        
 
         [HttpPost("/api/champions")]
         public async Task<ActionResult> AddChampion([FromBody] Order champs)
         {
             var maxid = await _context.Orders.MaxAsync(x => x.Id);
+            if (string.IsNullOrEmpty(champs.Name))
+                return NotFound("Champ name is necessary");
 
-            if (champs == null)
-            {
-                return NotFound("Nincs adat");
-            }
-            else
-            {
-                champs.Id = maxid + 1;
-                await _context.Orders.AddAsync(champs);
-                await _context.SaveChangesAsync();
-                return Ok(new { newchamp = champs });
-            }
+            if (string.IsNullOrEmpty(champs.Role))
+                return NotFound("Champ role is necessary");
+
+            if (string.IsNullOrEmpty(champs.Lane))
+                return NotFound("Champ lane is necessary");
+
+            if (champs.Difficulty == 0)
+                return NotFound("Champ difficulty is necessary");
+
+            if (champs.BlueEssence == 0)
+                return NotFound("Champ blueessence is necessary");
+
+            if (string.IsNullOrEmpty(champs.DamageType))
+                return NotFound("Champ damagetype is necessary");
+
+            if (string.IsNullOrEmpty(champs.Images))
+                return NotFound("Champ image is necessary");
+
+            if (string.IsNullOrEmpty(champs.Description))
+                return NotFound("Champ description is necessary");
+           
+                if (Authenticator.loggedin)
+                {
+                    champs.Id = maxid + 1;
+                    await _context.Orders.AddAsync(champs);
+                    await _context.SaveChangesAsync();
+                    return Ok(new { message = "Saved", newchamp = champs });
+                }
+                else
+                {
+                    return Unauthorized(new { message = "Login is necessary"});
+                }
+
+            
 
         }
 
@@ -49,7 +77,7 @@ namespace Lol.API.Controllers
             var champofid = await _context.Orders.Where(x => x.Id == id).FirstOrDefaultAsync();
             if (champofid == null)
             {
-                return NotFound("Nincs adat");
+                return NotFound("Id does not exist");
             }
             return Ok(new { champs = champofid });
         }
@@ -60,14 +88,23 @@ namespace Lol.API.Controllers
             var toDelete = await _context.Orders.FindAsync(id);
             if (toDelete == null)
             {
-                return NotFound("Nincs adat");
+                return NotFound("Id does not exist");
             }
             else
             {
-                _context.Orders.RemoveRange(toDelete);
-                await _context.SaveChangesAsync();
+                if (Authenticator.loggedin)
+                {
 
-                return Ok(new { champs = await _context.Orders.Select(x => x).ToListAsync() });
+
+                    _context.Orders.RemoveRange(toDelete);
+                    await _context.SaveChangesAsync();
+
+                    return Ok(new { message = "Delete was succesfull"});
+                }
+                else
+                {
+                    return Unauthorized("Login is necessary");
+                }
             }
 
         }
