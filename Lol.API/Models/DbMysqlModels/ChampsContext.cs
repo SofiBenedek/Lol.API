@@ -16,6 +16,8 @@ public partial class ChampsContext : DbContext
     {
     }
 
+    public virtual DbSet<Login> Logins { get; set; }
+
     public virtual DbSet<Order> Orders { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
@@ -28,12 +30,34 @@ public partial class ChampsContext : DbContext
             .UseCollation("utf8_hungarian_ci")
             .HasCharSet("utf8");
 
+        modelBuilder.Entity<Login>(entity =>
+        {
+            entity.HasKey(e => e.Id).HasName("PRIMARY");
+
+            entity
+                .ToTable("login")
+                .UseCollation("utf8_general_ci");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnType("int(1)")
+                .HasColumnName("id");
+            entity.Property(e => e.Password)
+                .HasColumnType("int(10)")
+                .HasColumnName("password");
+            entity.Property(e => e.Username)
+                .HasMaxLength(10)
+                .HasColumnName("username");
+        });
+
         modelBuilder.Entity<Order>(entity =>
         {
-            entity.HasKey(e => e.Id);
+            entity
+                .HasKey(e => e.Id); 
 
-            entity.ToTable("orders")
-                  .UseCollation("utf8_general_ci");
+            entity
+                .ToTable("orders")
+                .UseCollation("utf8_general_ci");
 
             entity.Property(e => e.BlueEssence)
                 .HasColumnType("int(5)")
