@@ -12,7 +12,6 @@
 
   <ItemGroup>
     <Folder Include="Data\Csv\" />
-    <Folder Include="Data\Database\" />
 	  <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="8.0.23" />
 	  <PackageReference Include="SQLitePCLRaw.core" Version="3.0.2" />
 	  <PackageReference Include="SQLitePCLRaw.bundle_e_sqlite3" Version="3.0.2" />

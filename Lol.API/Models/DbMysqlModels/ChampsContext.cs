@@ -30,10 +30,10 @@ public partial class ChampsContext : DbContext
 
         modelBuilder.Entity<Order>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("orders")
-                .UseCollation("utf8_general_ci");
+            entity.HasKey(e => e.Id);
+
+            entity.ToTable("orders")
+                  .UseCollation("utf8_general_ci");
 
             entity.Property(e => e.BlueEssence)
                 .HasColumnType("int(5)")
